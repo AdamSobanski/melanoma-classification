@@ -40,6 +40,7 @@ data/melanoma_cancer_dataset/test/
 5. Open `notebooks/train.ipynb` and run all cells.
 
 ## Project Structure
+```plaintext
 melanoma_segmentation/
 ├── data/
 │   └── melanoma_cancer_dataset/
