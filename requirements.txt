@@ -1,0 +1,5 @@
+torch
+torchvision
+streamlit
+huggingface_hub
+Pillow
