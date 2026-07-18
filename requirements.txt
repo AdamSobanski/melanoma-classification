@@ -3,3 +3,5 @@ torchvision
 streamlit
 huggingface_hub
 Pillow
+supabase
+python-dotenv
