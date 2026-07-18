@@ -3,6 +3,19 @@ import torch
 import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
+import os
+from supabase import create_client
+from dotenv import load_dotenv
+import uuid
+from datetime import datetime
+import io
+
+load_dotenv()
+
+supabase = create_client(
+    os.getenv('SUPABASE_URL'),
+    os.getenv('SUPABASE_KEY')
+)
 
 st.warning('⚠️ This is an educational prototype, not a diagnostic tool. Results may be unreliable, especially for non-dermoscopic images. Always consult a dermatologist for any skin concerns.')
 
@@ -30,6 +43,28 @@ transform = transforms.Compose([
 
 class_names = ['benign', 'malignant']
 
+def save_to_supabase(image, prediction, confidence):
+    # zapisz zdjęcie jako JPEG bytes
+    img_filename = f"{uuid.uuid4()}.jpg"
+    img_buffer = io.BytesIO()
+    image.save(img_buffer, format='JPEG')
+    img_bytes = img_buffer.getvalue()
+    
+    supabase.storage.from_('melanoma-images').upload(
+        img_filename,
+        img_bytes,
+        {'content-type': 'image/jpeg'}
+    )
+    
+    image_url = f"{os.getenv('SUPABASE_URL')}/storage/v1/object/public/melanoma-images/{img_filename}"
+    
+    # zapisz wynik do bazy
+    supabase.table('predictions').insert({
+        'prediction': prediction,
+        'confidence': float(confidence),
+        'image_path': image_url
+    }).execute()
+
 st.title('Melanoma Classifier')
 st.write('Upload a close-up image of a skin lesion')
 
@@ -48,6 +83,7 @@ if uploaded_file is not None:
         confidence = probs[0][predicted].item()
 
     st.subheader(f'Prediction: {class_names[predicted]}')
+    save_to_supabase(image, class_names[predicted], confidence)
     st.write(f'Confidence: {confidence:.2%}')
 
     if class_names[predicted] == 'malignant':
