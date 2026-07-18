@@ -15,6 +15,9 @@ load_dotenv()
 SUPABASE_URL = st.secrets.get("SUPABASE_URL") or os.getenv("SUPABASE_URL")
 SUPABASE_KEY = st.secrets.get("SUPABASE_KEY") or os.getenv("SUPABASE_KEY")
 
+st.write(f"URL: {SUPABASE_URL[:20] if SUPABASE_URL else 'BRAK'}")
+st.write(f"KEY: {SUPABASE_KEY[:10] if SUPABASE_KEY else 'BRAK'}")
+
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 st.warning('⚠️ This is an educational prototype, not a diagnostic tool. Results may be unreliable, especially for non-dermoscopic images. Always consult a dermatologist for any skin concerns.')
